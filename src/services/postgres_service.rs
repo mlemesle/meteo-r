@@ -1,6 +1,5 @@
 use crate::{
-    dtos::{record::RecordDTO, ToDTO},
-    error::DomainError,
+    dtos::record::RecordDTO, error::DomainError,
     repositories::postgres_repository::PostgresRepository,
 };
 
@@ -22,7 +21,7 @@ impl PostgresService {
             .get_all()
             .await?
             .into_iter()
-            .map(ToDTO::to_dto)
+            .map(From::from)
             .collect::<Vec<_>>();
         Ok(dtos)
     }

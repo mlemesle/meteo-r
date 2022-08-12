@@ -1,6 +1,8 @@
+use std::str::FromStr;
+
 use sqlx::types::Uuid;
 
-use crate::dtos::{record::RecordDTO, ToDTO};
+use crate::{dtos::record::RecordDTO, error::DomainError};
 
 #[derive(sqlx::FromRow)]
 pub(crate) struct RecordEntity {
@@ -10,15 +12,17 @@ pub(crate) struct RecordEntity {
     pub humidity: f32,
 }
 
-impl ToDTO for RecordEntity {
-    type OutputDTO = RecordDTO;
+impl TryFrom<RecordDTO> for RecordEntity {
+    type Error = DomainError;
 
-    fn to_dto(self) -> Self::OutputDTO {
-        Self::OutputDTO {
-            id: self.id.to_string(),
-            temperature: self.temperature,
-            pressure: self.pressure,
-            humidity: self.humidity,
-        }
+    fn try_from(value: RecordDTO) -> Result<Self, Self::Error> {
+        let entity = Self {
+            id: Uuid::from_str(&value.id)?,
+            temperature: value.temperature,
+            pressure: value.pressure,
+            humidity: value.humidity,
+        };
+
+        Ok(entity)
     }
 }
