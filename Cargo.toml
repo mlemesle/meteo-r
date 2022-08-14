@@ -1,8 +1,19 @@
 [package]
+edition = "2021"
 name = "meteo-r"
 version = "0.1.0"
-edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+async-trait = "0.1.57"
+axum = "0.5.13"
+serde = {features = ["derive"], version = "1.0"}
+serde_json = "1.0.82"
+sqlx = {version = "0.6.0", features = ["runtime-tokio-rustls", "postgres", "macros", "migrate", "uuid", "chrono"]}
+thiserror = "1.0.31"
+tokio = {version = "1.20.1", features = ["full"]}
+tower = "0.4.13"
+tower-http = {version = "0.3.4", features = ["full"]}
+tracing = "0.1.36"
+tracing-subscriber = "0.3.15"
