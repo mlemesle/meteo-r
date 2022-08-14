@@ -1,5 +1,9 @@
+use std::str::FromStr;
+
+use sqlx::types::Uuid;
+
 use crate::{
-    dtos::record::RecordDTO, error::DomainError,
+    dtos::record::RecordDTO, dtos::record::RecordDTOWithoutID, error::DomainError,
     repositories::postgres_repository::PostgresRepository,
 };
 
@@ -26,11 +30,29 @@ impl PostgresService {
         Ok(dtos)
     }
 
-    pub async fn get_by_id(&self, id: sqlx::types::Uuid) -> Option<RecordDTO> {
-        todo!()
+    pub async fn insert_all(&self, datas: Vec<RecordDTOWithoutID>) -> Result<u64, DomainError> {
+        let entities = datas
+            .into_iter()
+            .map(TryFrom::try_from)
+            // There we can allow ourselves to unwrap directly since the implementation can't fail
+            .map(Result::unwrap)
+            .collect();
+
+        self.postgres_repository.insert_all(entities).await
     }
 
-    pub async fn insert_all(&self, datas: Vec<RecordDTO>) {
-        todo!()
+    pub async fn get_by_id(&self, id: &str) -> Result<Option<RecordDTO>, DomainError> {
+        let id = Uuid::from_str(id)?;
+
+        self.postgres_repository
+            .get_by_id(id)
+            .await
+            .map(|entity_opt| entity_opt.map(From::from))
+    }
+
+    pub async fn delete_by_id(&self, id: &str) -> Result<bool, DomainError> {
+        let id = Uuid::from_str(id)?;
+
+        self.postgres_repository.delete_by_id(id).await
     }
 }
