@@ -25,7 +25,14 @@ async fn main() -> Result<(), DomainError> {
         Arc::new(PostgresService::try_new("postgres://meteor:passw0rd@localhost/meteor").await?);
 
     let app = Router::new()
-        .route("/records", get(RecordController::get_all))
+        .route(
+            "/records",
+            get(RecordController::get_all).post(RecordController::insert_all),
+        )
+        .route(
+            "/records/:id",
+            get(RecordController::get_by_id).delete(RecordController::delete_by_id),
+        )
         .layer(Extension(postgres_service));
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 4444));
@@ -42,10 +49,10 @@ async fn main() -> Result<(), DomainError> {
 impl IntoResponse for DomainError {
     fn into_response(self) -> axum::response::Response {
         let (status, message) = match self {
-            DomainError::QueryError(err) => {
+            DomainError::QueryError(_err) => {
                 (StatusCode::INTERNAL_SERVER_ERROR, "Error while querying")
             }
-            DomainError::UuidError(err) => (StatusCode::INTERNAL_SERVER_ERROR, "Error UUID"),
+            DomainError::UuidError(_err) => (StatusCode::INTERNAL_SERVER_ERROR, "Error UUID"),
         };
 
         let body = Json(json!({

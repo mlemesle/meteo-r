@@ -1,0 +1,27 @@
+[
+    {
+        "temperature": 43.7,
+        "pressure": 1034.3,
+        "humidity": 78.1
+    },
+    {
+        "temperature": 21.1,
+        "pressure": 1002.9,
+        "humidity": 43.0
+    },
+    {
+        "temperature": -12.4,
+        "pressure": 992.3,
+        "humidity": 32.0
+    },
+    {
+        "temperature": 14.84,
+        "pressure": 1023.5,
+        "humidity": 66.7
+    },
+    {
+        "temperature": 29.2,
+        "pressure": 1058.1,
+        "humidity": 54.5
+    }
+]
