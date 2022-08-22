@@ -1,1 +1,1 @@
-pub(crate) mod postgres_repository;
+pub(crate) mod record_repository;

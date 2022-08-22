@@ -2,26 +2,31 @@
     {
         "temperature": 43.7,
         "pressure": 1034.3,
-        "humidity": 78.1
+        "humidity": 78.1,
+        "date": "2022-02-13T22:21:04Z"
     },
     {
         "temperature": 21.1,
         "pressure": 1002.9,
-        "humidity": 43.0
+        "humidity": 43.0,
+        "date": "2022-11-04T11:00:04Z"
     },
     {
         "temperature": -12.4,
         "pressure": 992.3,
-        "humidity": 32.0
+        "humidity": 32.0,
+        "date": "2021-09-12T05:30:00Z"    
     },
     {
         "temperature": 14.84,
         "pressure": 1023.5,
-        "humidity": 66.7
+        "humidity": 66.7,
+        "date": "2022-08-21T20:43:22Z"    
     },
     {
         "temperature": 29.2,
         "pressure": 1058.1,
-        "humidity": 54.5
+        "humidity": 54.5,
+        "date": "2022-08-23T17:12:54Z" 
     }
 ]

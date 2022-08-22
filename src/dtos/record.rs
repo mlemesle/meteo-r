@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 use crate::entities::record::RecordEntity;
@@ -8,6 +9,7 @@ pub(crate) struct RecordDTO {
     pub temperature: f32,
     pub pressure: f32,
     pub humidity: f32,
+    pub date: DateTime<Utc>,
 }
 
 impl From<RecordEntity> for RecordDTO {
@@ -17,6 +19,7 @@ impl From<RecordEntity> for RecordDTO {
             temperature: value.temperature,
             pressure: value.pressure,
             humidity: value.humidity,
+            date: value.date,
         }
     }
 }
@@ -26,4 +29,5 @@ pub(crate) struct RecordDTOWithoutID {
     pub temperature: f32,
     pub pressure: f32,
     pub humidity: f32,
+    pub date: DateTime<Utc>,
 }

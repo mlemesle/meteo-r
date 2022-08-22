@@ -5,9 +5,9 @@ use serde_json::json;
 use std::net::SocketAddr;
 use std::sync::Arc;
 
-use crate::controllers::record::RecordController;
+use crate::controllers::{export::ExportController, record::RecordController};
 use crate::error::DomainError;
-use crate::services::postgres_service::PostgresService;
+use crate::services::{export_service::ExportService, record_service::RecordService};
 
 mod controllers;
 mod dtos;
@@ -21,8 +21,10 @@ async fn main() -> Result<(), DomainError> {
     // initialize tracing
     tracing_subscriber::fmt::init();
 
-    let postgres_service =
-        Arc::new(PostgresService::try_new("postgres://meteor:passw0rd@localhost/meteor").await?);
+    let record_service =
+        Arc::new(RecordService::try_new("postgres://meteor:passw0rd@localhost/meteor").await?);
+    let export_service =
+        Arc::new(ExportService::try_new("postgres://meteor:passw0rd@localhost/meteor").await?);
 
     let app = Router::new()
         .route(
@@ -33,7 +35,9 @@ async fn main() -> Result<(), DomainError> {
             "/records/:id",
             get(RecordController::get_by_id).delete(RecordController::delete_by_id),
         )
-        .layer(Extension(postgres_service));
+        .route("/export", get(ExportController::export))
+        .layer(Extension(record_service))
+        .layer(Extension(export_service));
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 4444));
 
