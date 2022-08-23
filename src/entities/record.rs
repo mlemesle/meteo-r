@@ -1,6 +1,9 @@
 use std::str::FromStr;
 
-use sqlx::types::Uuid;
+use sqlx::types::{
+    chrono::{DateTime, Utc},
+    Uuid,
+};
 
 use crate::{
     dtos::record::{RecordDTO, RecordDTOWithoutID},
@@ -13,6 +16,7 @@ pub(crate) struct RecordEntity {
     pub temperature: f32,
     pub pressure: f32,
     pub humidity: f32,
+    pub date: DateTime<Utc>,
 }
 
 impl TryFrom<RecordDTO> for RecordEntity {
@@ -24,6 +28,7 @@ impl TryFrom<RecordDTO> for RecordEntity {
             temperature: value.temperature,
             pressure: value.pressure,
             humidity: value.humidity,
+            date: value.date,
         };
 
         Ok(entity)
@@ -39,6 +44,7 @@ impl TryFrom<RecordDTOWithoutID> for RecordEntity {
             temperature: value.temperature,
             pressure: value.pressure,
             humidity: value.humidity,
+            date: value.date,
         })
     }
 }
