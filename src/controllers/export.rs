@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use axum::{extract::Query, Extension, Json};
 
 use crate::{
@@ -12,7 +10,7 @@ pub(crate) struct ExportController;
 
 impl ExportController {
     pub async fn export(
-        Extension(export_service): Extension<Arc<ExportService>>,
+        Extension(export_service): Extension<ExportService>,
         Query(export_filter): Query<ExportFilter>,
     ) -> Result<Json<Vec<RecordDTO>>, DomainError> {
         export_service.export(export_filter).await.map(Json)

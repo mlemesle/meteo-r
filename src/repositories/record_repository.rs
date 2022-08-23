@@ -3,6 +3,7 @@ use sqlx::{postgres::PgPoolOptions, types::Uuid, PgPool, QueryBuilder};
 
 use crate::{entities::record::RecordEntity, error::DomainError};
 
+#[derive(Clone)]
 pub(crate) struct RecordRepository {
     pool: PgPool,
 }
@@ -36,35 +37,21 @@ impl RecordRepository {
             return Ok(0);
         }
 
-        let mut temperatures = Vec::with_capacity(datas_len);
-        let mut pressures = Vec::with_capacity(datas_len);
-        let mut humidities = Vec::with_capacity(datas_len);
-        let mut dates = Vec::with_capacity(datas_len);
-
-        datas.iter().for_each(|data| {
-            temperatures.push(data.temperature);
-            pressures.push(data.pressure);
-            humidities.push(data.humidity);
-            dates.push(data.date);
-        });
-
-        sqlx::query(
-            r#"
-            INSERT INTO records (temperature, pressure, humidity, date) 
-            SELECT * FROM UNNEST ($1,$2,$3,$4);
-        "#,
-        )
-        .bind(temperatures)
-        .bind(pressures)
-        .bind(humidities)
-        .bind(dates)
-        .execute(&self.pool)
-        .await
-        .map(|pg_result| pg_result.rows_affected())
-        .map_err(|sql_err| {
-            tracing::error!("{}", sql_err);
-            DomainError::QueryError(sql_err)
-        })
+        QueryBuilder::new("INSERT INTO records (temperature, pressure, humidity, date) ")
+            .push_values(datas.iter(), |mut b, data| {
+                b.push_bind(data.temperature)
+                    .push_bind(data.pressure)
+                    .push_bind(data.humidity)
+                    .push_bind(data.date);
+            })
+            .build()
+            .execute(&self.pool)
+            .await
+            .map(|pg_result| pg_result.rows_affected())
+            .map_err(|sql_err| {
+                tracing::error!("{}", sql_err);
+                DomainError::QueryError(sql_err)
+            })
     }
 
     pub async fn get_by_id(&self, id: Uuid) -> Result<Option<RecordEntity>, DomainError> {

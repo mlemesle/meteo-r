@@ -1,9 +1,9 @@
 use axum::routing::get;
 use axum::{http::StatusCode, response::IntoResponse, Json};
 use axum::{Extension, Router};
+use clap::{Arg, Command};
 use serde_json::json;
 use std::net::SocketAddr;
-use std::sync::Arc;
 
 use crate::controllers::{export::ExportController, record::RecordController};
 use crate::error::DomainError;
@@ -21,10 +21,35 @@ async fn main() -> Result<(), DomainError> {
     // initialize tracing
     tracing_subscriber::fmt::init();
 
-    let record_service =
-        Arc::new(RecordService::try_new("postgres://meteor:passw0rd@localhost/meteor").await?);
-    let export_service =
-        Arc::new(ExportService::try_new("postgres://meteor:passw0rd@localhost/meteor").await?);
+    // Retrieving user args
+    let matches = Command::new("meteo-r")
+        .about("A web server to interact with meteorological datas and export them to graph")
+        .version("0.0.1")
+        .author("mlemesle")
+        .arg(
+            Arg::new("db-url")
+                .long("db-url")
+                .short('d')
+                .required(true)
+                .takes_value(true)
+                .help("URL to the postgres database"),
+        )
+        .arg(
+            Arg::new("port")
+                .long("port")
+                .short('p')
+                .takes_value(true)
+                .value_parser(clap::value_parser!(u16).range(3000..))
+                .default_value("4444")
+                .help("Port listened by the server"),
+        )
+        .get_matches();
+
+    let db_url = matches
+        .get_one::<String>("db-url")
+        .expect("mandatory field");
+    let record_service = RecordService::try_new(&db_url).await?;
+    let export_service = ExportService::try_new(&db_url).await?;
 
     let app = Router::new()
         .route(
@@ -39,7 +64,8 @@ async fn main() -> Result<(), DomainError> {
         .layer(Extension(record_service))
         .layer(Extension(export_service));
 
-    let addr = SocketAddr::from(([127, 0, 0, 1], 4444));
+    let port = *matches.get_one("port").expect("defaulted by clap");
+    let addr: SocketAddr = SocketAddr::from(([127, 0, 0, 1], port));
 
     tracing::debug!("listening on {}", addr);
     axum::Server::bind(&addr)

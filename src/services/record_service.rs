@@ -7,6 +7,7 @@ use crate::{
     repositories::record_repository::RecordRepository,
 };
 
+#[derive(Clone)]
 pub(crate) struct RecordService {
     record_repository: RecordRepository,
 }
